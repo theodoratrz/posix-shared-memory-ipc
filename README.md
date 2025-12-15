@@ -1,37 +1,73 @@
-## Shared Memory Project
+# POSIX Shared Memory IPC System
 
-In this project, we implement independent programms, which run simultaneously as a part of the Operational Systems course.
+A system programming project demonstrating **inter-process communication**
+using **POSIX shared memory** and synchronization primitives.
 
-**Summary**
+The application follows a client–server style interaction model, where
+multiple processes communicate through shared memory segments rather
+than sockets or files.
 
+## Key Concepts
+
+- POSIX shared memory 
+- Inter-process communication (IPC)
+- Synchronization of shared resources
+- Concurrent access control
+- Low-level systems programming
+
+## Problem Description
+
+The project implements a variation of the **Salad Makers synchronization problem**:
 ![image](https://user-images.githubusercontent.com/61420354/199811994-98800ae4-4db8-40b0-aa40-0f5b413288ef.png)
 
-- Each saladmaker usees the ingredient that has access to and waits for the other ingredients to arrive at the shared table.
--  When a saladmaker has every ingredient, starts to prepare the salad. This process takes a while, and when the salad is ready, it is delivered at the available waiter. 
--  The chef each time chooses 2 of the ingredients randomly. This combination of vegetables can supply a specific saladmaker at a time. The chef "informs" the saladmaker to take the ingredients that he is need of. For example if the chef chooses tomato and onion he will inform the saladmaker with the peppers.
+- A **chef** process randomly selects two out of three ingredients
+  (tomato, onion, pepper).
+- Each **saladmaker** owns exactly one ingredient and waits for the other
+  two to become available on the shared table.
+- When a saladmaker has all required ingredients, it prepares a salad,
+  which takes a random amount of time.
+- Once ready, the salad is delivered, and the process repeats.
 
-**Goals/Tasks**
-- Use semaphors to achieve a successful cooperation between the independent processes.
-- Use a shared memory segment as that the processes can access variables and data sturctures in a right way.
+Only one saladmaker can proceed at a time, depending on the ingredients
+selected by the chef.
 
-**Compilation:** 
+## Architecture
 
-First we run cef with the command: `./chef -n numOfSlds -m mantime`
+- All processes communicate via a **shared memory segment**
+- Shared data structures are protected using **POSIX semaphores**
+- No network communication or files are used
+- Synchronization ensures:
+  - correct cooperation between processes
+  - absence of race conditions
+  - proper blocking and wake-up behavior
 
-  `numOfSlds` is the number pf salads we want to make
+## Goals
+
+- Demonstrate correct use of **POSIX shared memory**
+- Coordinate independent processes using **semaphores**
+- Ensure safe concurrent access to shared state
+- Solve a classic synchronization problem correctly
+
+## Compilation & Execution
+
+### Start the Chef
+ `./chef -n <numOfSalads> -m <restTime>`
+
+  numOfSalads: number of salads to prepare
+  restTime: chef resting time between selections
+
+- Chef prints the id of the shared segment.
+
+### Start a saladmaker
+`./saladmaker -t1 <lb> -t2 <ub> -i <ingredient> -s <shmid>`  
+
+  `lb`, `ub` minimum and maximum preparation time 
   
-  `mantime` is the resting time of the chef
-
-- Chef prints the id of the shared segment.  
-- Then we run the saladmakers with the command: `./saladmaker -t1 lb -t2 ub -i ingredient -s shmid`  
-
-  `lb` και `ub` are the minimum and the maximum time that the saladmaker works. The program choose a time between   the low and the upper bound. 
-  
-  `ingredient` can be one of the following:
+  `ingredient`:
   - `o` for onion
   - `p` for pepper
   - `t` for tomato
 
   `shmid` is the key for the shared memory segment
   
-  for example: assume we want to run saladmaker1: ```./saladmaker -t1 1 -t2 3 -i o -s 12345```
+  Example: ```./saladmaker -t1 1 -t2 3 -i o -s 12345```
